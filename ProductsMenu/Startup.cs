@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 using SendingMail;
 using DataAccessLayer;
 using DataAccessLayer.Entity;
+using Microsoft.EntityFrameworkCore;
+using System.Configuration;
 
 namespace ProductsMenu
 {
@@ -21,6 +23,7 @@ namespace ProductsMenu
     {
         public Startup(IConfiguration configuration)
         {
+            
             var Connection = configuration.GetConnectionString("DbConnection");
             var fromaddress = configuration.GetValue<string>("SMTP:Fromaddress");
             var password  = configuration.GetValue<string>("SMTP:Password");
@@ -32,14 +35,19 @@ namespace ProductsMenu
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var Connection = Configuration.GetConnectionString("DbConnection");
+            services.AddDbContext<LocationDbContext>(options => options.UseSqlServer(Connection));
             services.AddTransient<IProductRepository, ProductRepository>();
+            services.AddTransient<ILocationinterface, LocationRepository>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ProductsMenu", Version = "v1" });
             });
-            services.AddControllers();
-            services.AddSingleton<Mailsending>();
+            //services.AddControllers();
+            //services.AddSingleton<Mailsending>();
+            
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
